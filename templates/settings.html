@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <title>Wuzzi's Chatbot - Settings</title>
+   <link rel="stylesheet" href="style.css">
+</head>
+<body>
+   <div class="container">
+       <h1>Wuzzi's Chatbot - Settings</h1>
+       <form id="chat-form">
+           <label for="api-key">Wuzzi Chatbot API Key:</label>
+           <input type="password" id="api-key" name="api-key" required>
+          
+           <label for="api-provider">API Provider (groq | openai):</label>
+           <input type="text" id="api-provider" name="api-provider" required>
+           <div class="button-container" style="align-self: center;">
+                <button type="submit">Save</button>
+                <button type="button" id="back-button" onclick="goBack()">Home</button>
+           </div>
+       </form>
+   </div>
+
+   <script defer>
+        var apiKeyInput = document.getElementById("api-key");
+        var apiProviderInput = document.getElementById("api-provider");
+
+        var savedApiKey = localStorage.getItem("apiKey");
+        var savedApiProvider = localStorage.getItem("apiProvider");
+
+        if (savedApiKey) {
+            apiKeyInput.value = savedApiKey;
+        }
+
+        if (savedApiProvider) {
+            apiProviderInput.value = savedApiProvider;
+        }
+
+        document.getElementById("chat-form").addEventListener("submit", 
+            function(event) {
+                event.preventDefault();
+
+                var apiKey = apiKeyInput.value;
+                var apiProvider = apiProviderInput.value;
+
+                localStorage.setItem("apiKey", apiKey);
+                localStorage.setItem("apiProvider", apiProvider);
+
+                alert("Settings saved successfully!");
+            });
+
+       function goBack() {
+           window.location.href = "/";
+       }
+   </script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Wuzzi's Chatbot</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Wuzzi's Chatbot</h1>
+        <div id="error-message" class="error-message"></div>
+        <div id="chat-history"></div>
+        <form id="chat-form">
+            <input type="text" id="message" name="message" required>
+            <div class="button-container" style="align-self: center;">
+                <button type="submit">Send</button>
+                <button type="button" id="clear-button">Clear</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="settings-button" onclick="location.href='settings'">Settings</div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script defer>
+        var chatHistory = [];
+        var apiKey      = localStorage.getItem("apiKey") || ""; // Read the API key from local storage or set it to an empty string
+        var apiProvider = localStorage.getItem("apiProvider") || ""; 
+
+        $(document).ready(function() {
+            $("#chat-form").submit(function(event) {
+                event.preventDefault();
+                var message = $("#message").val();
+                sendMessage(message);
+            });
+
+            $("#clear-button").click(function() {
+                chatHistory = [];
+                displayChatHistory();
+                $("#message").val("");
+            });
+        });
+
+        function sendMessage(message) {
+            chatHistory.push({role: "user", content: message});
+            displayChatHistory();
+            $.ajax({
+                url: "/chat",
+                method: "POST",
+                contentType: "application/json",
+                headers: {
+                    "Authorization": "Bearer " + apiKey
+                },
+                data: JSON.stringify({
+                    api_provider: apiProvider,
+                    chat_history: chatHistory
+                }),
+                success: function(response) {
+                    if (response.error) {
+                        showErrorMessage(response.error);
+                    } else {
+                        chatHistory.push({role: "assistant", content: response.message});
+                        displayChatHistory();
+                        $("#message").val("");
+                        hideErrorMessage();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    showErrorMessage("An error occurred: " + error);
+                }
+            });
+        }
+
+        function showErrorMessage(message) {
+            $("#error-message").text(message).show();
+        }
+
+        function hideErrorMessage() {
+            $("#error-message").hide();
+        }
+
+        function displayChatHistory() {
+            var chatHistoryElement = document.getElementById("chat-history");
+            chatHistoryElement.innerHTML = ""; // Clear the chat history container
+
+            for (var i = 0; i < chatHistory.length; i++) {
+                var message = chatHistory[i];
+                var messageElement = document.createElement("p");
+                var strongElement = document.createElement("strong");
+
+                if (message.role === "user") {
+                    strongElement.textContent = "You: ";
+                } else if (message.role === "assistant") {
+                    strongElement.textContent = "Chatbot: ";
+                }
+
+                messageElement.appendChild(strongElement);
+                messageElement.appendChild(document.createTextNode(message.content));
+
+                chatHistoryElement.appendChild(messageElement);
+            }
+
+            chatHistoryElement.scrollTop = chatHistoryElement.scrollHeight;
+        }
+    </script>
+</body>
+</html>
