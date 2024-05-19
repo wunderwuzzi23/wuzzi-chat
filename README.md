@@ -1,30 +1,35 @@
 ## wuzzi-chat
 
 This is a simple Chat UI that can talk to `groq` and `openai` chat completion APIs.
-The main purpose is to demonstrate and test red team tools for chat bots.
 
+The main purpose is to demonstrate and test red team tools for chat bots and LLM applications.
 
+![wuzzi chat ui](ui.png)
 
-## OpenAI and/or groq API key
+## OpenAI and groq API keys
 
-wuzzi-chat supports either OpenAI or groq chat endpoints. To call the API you need an API key, you can get them from:
+wuzzi-chat supports `OpenAI` and `groq` chat completion endpoints. 
 
-1. **OpenAI:** Go to https://platform.openai.com and create an API key
-2. **groq:** Go to https://console.groq.com/ and create an API key
+You need APU keys, that you can get from:
 
-Then set the API key's in your terminal, e.g.:
+1. **OpenAI:**  https://platform.openai.com 
+2. **groq:**    https://console.groq.com/ 
+
+Then set the API keys in your terminal, e.g.:
 
 ```bash
 export OPENAI_API_KEY=<your_api_key>
 export GROQ_API_KEY=<your_api_key>
 ```
 
+You don't need both, just the one you would like to use with the application.
+
 ## Running the web server
 
-Install the required dependencies and run the web server:
+Install the required dependencies and then run the web server:
 
 ```python
-pyton chat.py
+python chat.py
 ```
 
 It will listen on http://127.0.0.1:5000 by default.
@@ -43,5 +48,10 @@ This is how a typical `.env` file will look like:
 CHATUI_API_KEY=ThisIsMyTestKey1234
 CHATUI_API_PROVIDER=groq
 ```
+
+## Client Configuration
+
+When you use the Chat app you need to the set the UI key and model in the browser, otherwise you'll see a *UNAUTHORIZED* message.
+Go and click "SETTINGS" on the bottom right of the Chat UI to set the required values.
 
 That's all.
