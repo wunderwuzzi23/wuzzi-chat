@@ -10,7 +10,7 @@ The main purpose is to demonstrate and test red team tools for chat bots and LLM
 
 wuzzi-chat supports `OpenAI` and `groq` chat completion endpoints. 
 
-You need APU keys, that you can get from:
+You need API keys, that you can get from:
 
 1. **OpenAI:**  https://platform.openai.com 
 2. **groq:**    https://console.groq.com/ 
