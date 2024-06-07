@@ -6,13 +6,15 @@ The main purpose is to demonstrate and test red team tools for chat bots and LLM
 
 ![wuzzi chat ui](ui.png)
 
-It currently supports OpenAI, groq and also running Ollama locally.
+wuzz-chat currently supports `OpenAI`, `groq` and locally run `Ollama` models. 
+
+You can choose which ones to use, one or all three of them. 
 
 ## OpenAI and groq API keys
 
-wuzzi-chat supports `OpenAI` and `groq` chat completion endpoints. 
+If you want to use hosted services like OpenAI or groq, you need API keys.
 
-You need API keys, that you can get from:
+You can get those from:
 
 1. **OpenAI:**  https://platform.openai.com 
 2. **groq:**    https://console.groq.com/ 
@@ -24,12 +26,10 @@ export OPENAI_API_KEY=<your_api_key>
 export GROQ_API_KEY=<your_api_key>
 ```
 
-You don't need both, just the one you would like to use with the application.
+## Using a local Ollama model
 
-## Using ollama to run a model locally
-
-Follow installation instructions on [website](https://ollama.com/)
-If you want to use docker and CPU only these commands will get you going:
+Ollama runs entirely locally. Follow installation instructions on [Ollama website](https://ollama.com/)
+If you want to use docker and CPU only these commands will get you going with a small phi3 model.
 
 ```
 docker pull ollama/ollama
@@ -42,10 +42,8 @@ When you visit `http://localhost:11434/` you'll see "Ollama is running".
 In the `.env` file you can specify the model, like `MODEL=phi3:3.8b`.
 
 ```
-CHATUI_API_KEY=<a key you made up>
-CHATUI_API_PROVIDER=ollama
-OLLAMA_ENDPOINT=http://localhost:11434
-MODEL=phi3:3.8b
+OLLAMA_ENDPOINT=http://localhost:11434/
+OLLAMA_MODEL=phi3:3.8b
 ```
 
 ## Running the web server
@@ -64,13 +62,15 @@ It will listen on http://127.0.0.1:5000 by default.
 If you do not have a `.env` file the server will create one for you upon startup and ask for required values:
 
 `CHATUI_API_KEY`: The token the client application has to send to communicate with wuzzi-chat. 
-`CHATUI_API_PROVIDER`: Which LLM service to use, e.g. groq or OpenAI. the API key for those should already have been set
 
 This is how a typical `.env` file will look like:
 
 ```
 CHATUI_API_KEY=ThisIsMyTestKey1234
-CHATUI_API_PROVIDER=groq
+GROQ_MODEL=llama3-8b-8192
+OPENAI_MODEL=gpt-4o
+OLLAMA_ENDPOINT=http://localhost:11434/
+OLLAMA_MODEL=phi3:3.8b
 ```
 
 ## Client Configuration
