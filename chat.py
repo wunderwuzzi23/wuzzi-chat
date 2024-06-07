@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify, send_file
-from ai_model import GroqModel, OpenAIModel
+from ai_model import GroqModel, OpenAIModel, OllamaModel
 import dotenv
 import os
 
@@ -11,13 +11,19 @@ MODERATION_AFTER = False
 
 
 def get_ai_model(api_provider):
-    if api_provider != "":
-        api_provider = os.environ.get("CHATUI_API_PROVIDER")
+    if api_provider == "" or api_provider==None:
+        api_provider = "groq"
     
     if api_provider == "groq":
-        return GroqModel(api_key=os.environ.get("GROQ_API_KEY"))
+        return GroqModel(api_key=os.environ.get("GROQ_API_KEY"), 
+                        model=os.environ.get("MODEL", "llama3-8b-8192"))
     elif api_provider == "openai":
-        return OpenAIModel(api_key=os.environ.get("OPENAI_API_KEY"))
+        return OpenAIModel(api_key=os.environ.get("OPENAI_API_KEY"),
+                           model=os.environ.get("OPENAI_MODEL","gpt-4o"))
+    elif api_provider == "ollama":
+        ollama_api   = os.environ.get("OLLAMA_ENDPOINT", "http://localhost:11434")
+        ollama_model = os.environ.get("OLLAMA_MODEL", "llama3-8b-8192")
+        return OllamaModel(ollama_api, ollama_model)
     else:
         raise ValueError(f"Invalid AI model provider: {api_provider}")
 
@@ -53,12 +59,10 @@ def chat():
     if not auth_header or not auth_header.startswith("Bearer "):
         return jsonify({"error": "Missing or invalid Authorization header"}), 401
 
-
     auth_key = auth_header[7:]  
     if not validate_api_key(auth_key):
         return jsonify({"error": "Access Denied."}), 401
     
-    # Log the entire request body
     app.logger.info(f"Request Body: {request.json}")
     
     system_prompt = "This is Wuzzi Chat a friendly and helpful AI assistant."
@@ -80,14 +84,8 @@ def chat():
         if moderation_response.results[0].flagged:
             return jsonify({"error": "The message violates the content policy."})
 
+    assistant_reply = ai_model.chat(messages=chat_history)
 
-    chat_response = ai_model.create_chat_completion(
-        model="llama3-8b-8192",
-        messages=chat_history)
-
-    assistant_reply = chat_response.choices[0].message.content
-
-    # Log the entire request body
     app.logger.info(f"Assistant Reply: {assistant_reply}")
 
     if MODERATION_AFTER:
@@ -109,21 +107,33 @@ def create_env_file() -> bool:
         return True
     return False
 
-def set_env_variable(var_name, prompt_text):
+def set_env_variable_from_input(var_name, prompt_text):
     if os.environ.get(var_name) is None:
         value = input(prompt_text)
-        with open('.env', 'a') as f:
-            f.write(f"{var_name}={value}\n")
-        os.environ[var_name] = value
+        set_env_variable(var_name, value)
     
+def set_env_variable(var_name, var_value):
+    with open('.env', 'a') as f:
+        f.write(f"{var_name}={var_value}\n")
+        os.environ[var_name] = var_value
+     
 if __name__ == "__main__":
 
-    # If the server is started and .env file doesn't exist we create it and ask for the configuration values
+    # If the server is started and .env file doesn't exist
+    # create the .env file and ask for the configuration values
     if create_env_file() == True:
-        set_env_variable('CHATUI_API_KEY', 'Enter WUZZI-CHAT UI API Authorization Token: ')
-        set_env_variable('CHATUI_API_PROVIDER',   'Enter API Provider (groq | openai): ')
-        set_env_variable('GROQ_API_KEY',   'Enter GROQ_API_KEY API Key: ')
-        set_env_variable('OPENAI_API_KEY', 'Enter OPENAI_API_KEY API Key: ')
+        set_env_variable_from_input("CHATUI_API_KEY", "Enter WUZZI-CHAT UI API Authorization Token: ")
+        
+        set_env_variable_from_input("GROQ_API_KEY",  "Enter GROQ_API_KEY API Key: ")
+        set_env_variable("GROQ_MODEL", "llama3-8b-8192")
 
+        set_env_variable_from_input("OPENAI_API_KEY", "Enter OPENAI_API_KEY API Key: ")
+        set_env_variable("OPENAI_MODEL", "gpt-4o")
+
+        set_env_variable("OLLAMA_ENDPOINT", "http://localhost:11434/")
+        set_env_variable("OLLAMA_MODEL", "phi3:3.8b")
+
+        print("Created .env file - review to confirm settings.")
+    
     dotenv.load_dotenv()
     app.run(debug=True)

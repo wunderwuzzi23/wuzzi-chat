@@ -26,7 +26,7 @@
     <script defer>
         var chatHistory = [];
         var apiKey      = localStorage.getItem("apiKey") || ""; // Read the API key from local storage or set it to an empty string
-        var apiProvider = localStorage.getItem("apiProvider") || ""; 
+        var apiProvider = localStorage.getItem("apiProvider") || "groq"; 
 
         $(document).ready(function() {
             $("#chat-form").submit(function(event) {

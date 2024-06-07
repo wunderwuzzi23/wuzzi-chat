@@ -6,6 +6,8 @@ The main purpose is to demonstrate and test red team tools for chat bots and LLM
 
 ![wuzzi chat ui](ui.png)
 
+It currently supports OpenAI, groq and also running Ollama locally.
+
 ## OpenAI and groq API keys
 
 wuzzi-chat supports `OpenAI` and `groq` chat completion endpoints. 
@@ -23,6 +25,28 @@ export GROQ_API_KEY=<your_api_key>
 ```
 
 You don't need both, just the one you would like to use with the application.
+
+## Using ollama to run a model locally
+
+Follow installation instructions on [website](https://ollama.com/)
+If you want to use docker and CPU only these commands will get you going:
+
+```
+docker pull ollama/ollama
+docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
+docker exec -it ollama ollama run phi3:3.8b
+```
+
+When you visit `http://localhost:11434/` you'll see "Ollama is running".
+
+In the `.env` file you can specify the model, like `MODEL=phi3:3.8b`.
+
+```
+CHATUI_API_KEY=<a key you made up>
+CHATUI_API_PROVIDER=ollama
+OLLAMA_ENDPOINT=http://localhost:11434
+MODEL=phi3:3.8b
+```
 
 ## Running the web server
 
