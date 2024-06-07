@@ -17,12 +17,14 @@
                 <button type="submit">Save</button>
                 <button type="button" id="back-button" onclick="goBack()">Home</button>
            </div>
+           <div id="status-label" class="status-label"></div>
        </form>
    </div>
 
    <script defer>
         var apiKeyInput = document.getElementById("api-key");
         var apiProviderInput = document.getElementById("api-provider");
+        var statusLabel = document.getElementById("status-label");
 
         var savedApiKey = localStorage.getItem("apiKey");
         var savedApiProvider = localStorage.getItem("apiProvider");
@@ -45,7 +47,7 @@
                 localStorage.setItem("apiKey", apiKey);
                 localStorage.setItem("apiProvider", apiProvider);
 
-                alert("Settings saved successfully!");
+                statusLabel.textContent = "Settings saved successfully!";
             });
 
        function goBack() {

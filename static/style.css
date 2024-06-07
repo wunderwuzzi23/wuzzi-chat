@@ -9,6 +9,13 @@ body {
     justify-content: center;
 }
 
+.status-label {
+    margin-top: 10px;
+    color: red;
+    font-weight: bold;
+}
+
+
 .container {
     max-width: 800px;
     width: 100%;
