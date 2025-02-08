@@ -31,6 +31,10 @@ body.dark-mode {
     margin-top: 50px;
 }
 
+body.dark-mode .container {
+    background-color: #4a4848;
+}
+
 h1 {
     font-size: 28px;
     margin-bottom: 20px;
@@ -68,6 +72,11 @@ h1 {
     border: 1px solid #ccc;
     border-radius: 5px;
     margin-bottom: 10px;
+}
+
+body.dark-mode #chat-form input[type="text"],
+body.dark-mode #chat-form input[type="password"] {
+    background-color: #cccc;
 }
 
 #chat-form button {
