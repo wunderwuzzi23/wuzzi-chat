@@ -3,6 +3,21 @@
 <head>
     <title>Wuzzi's Chatbot</title>
     <link rel="stylesheet" href="style.css">
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        if (localStorage.getItem('darkMode') === 'enabled') {
+          document.body.classList.add('dark-mode');
+        }
+      });
+      function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        if (document.body.classList.contains('dark-mode')) {
+          localStorage.setItem('darkMode', 'enabled');
+        } else {
+          localStorage.setItem('darkMode', 'disabled');
+        }
+      }
+    </script>
 </head>
 
 <body>
@@ -18,7 +33,8 @@
             </div>
         </form>
     </div>
-
+    <div class="dark-mode-button" onclick="toggleDarkMode()">Toggle Dark Mode</div>
+    <br>
     <div class="settings-button" onclick="location.href='settings'">Settings</div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
