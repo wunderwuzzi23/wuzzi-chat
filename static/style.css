@@ -91,6 +91,11 @@ body.dark-mode #chat-form input[type="password"] {
     align-self: center;
 }
 
+body.dark-mode #chat-form button {
+    background-color: #526171;
+    color: #e0e0e0;
+}
+
 #chat-form button:hover {
     background-color: #0056b3;
 }
