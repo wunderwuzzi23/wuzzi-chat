@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 # Set moderation settings
 MODERATION_BEFORE = False
-MODERATION_AFTER = False
+MODERATION_AFTER = True
 
 
 def get_ai_model(api_provider):
@@ -91,7 +91,7 @@ def chat():
     app.logger.info(f"Assistant Reply: {assistant_reply}")
 
     if MODERATION_AFTER:
-        moderation_response = ai_model.moderations.create(input=assistant_reply)
+        moderation_response = ai_model.moderate(message=assistant_reply)
         app.logger.info(f"Moderation: {moderation_response}")
         if moderation_response.results[0].flagged:
             return jsonify({"error": "The generated response violates the content policy."})
