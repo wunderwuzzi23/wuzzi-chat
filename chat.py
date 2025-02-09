@@ -80,7 +80,9 @@ def chat():
     chat_history.insert(0, {"role": "system", "content": system_prompt})
 
     if MODERATION_BEFORE:
-        moderation_response = ai_model.moderations.create(input=chat_history)
+        print(f"chat_history: {chat_history[1]["content"]}")
+        moderation_response = ai_model.moderate(message=chat_history[1]["content"])  #.create(input=chat_history)
+
         if moderation_response.results[0].flagged:
             return jsonify({"error": "The message violates the content policy."})
 
