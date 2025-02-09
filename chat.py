@@ -5,9 +5,9 @@ import os
 
 app = Flask(__name__)
 
-# Set moderation settings
-MODERATION_BEFORE = False
-MODERATION_AFTER = False
+# Set moderation settings (these only apply to the OpenAI models)
+MODERATION_BEFORE = True
+MODERATION_AFTER = True
 
 
 def get_ai_model(api_provider):
@@ -71,6 +71,7 @@ def chat():
     chat_history = request.json["chat_history"]
 
     ai_model = get_ai_model(api_provider)
+    app.logger.info(f"API Provider: {api_provider}")
 
     # Validate the chat_history
     if not validate_chat_history(chat_history):
@@ -80,19 +81,32 @@ def chat():
     chat_history.insert(0, {"role": "system", "content": system_prompt})
 
     if MODERATION_BEFORE:
-        moderation_response = ai_model.moderations.create(input=chat_history)
-        if moderation_response.results[0].flagged:
-            return jsonify({"error": "The message violates the content policy."})
+        if api_provider == "openai":
+
+            moderation_response = ai_model.moderate(message=chat_history[1]["content"])  #.create(input=chat_history)
+            app.logger.info(f"Input moderation: 'flagged': {moderation_response.results[0].flagged}")
+
+            if moderation_response.results[0].flagged:
+                return jsonify({"error": "The message violates the content policy."})
+
+        else:
+            app.logger.warning(f"Moderation is only supported for OpenAI models. But the api_provider is set to '{api_provider}'.")
 
     assistant_reply = ai_model.chat(messages=chat_history)
 
     app.logger.info(f"Assistant Reply: {assistant_reply}")
 
     if MODERATION_AFTER:
-        moderation_response = ai_model.moderations.create(input=assistant_reply)
-        app.logger.info(f"Moderation: {moderation_response}")
-        if moderation_response.results[0].flagged:
-            return jsonify({"error": "The generated response violates the content policy."})
+        if api_provider == "openai":
+
+            moderation_response = ai_model.moderate(message=assistant_reply)
+            app.logger.info(f"Output moderation: 'flagged': {moderation_response.results[0].flagged}")
+
+            if moderation_response.results[0].flagged:
+                return jsonify({"error": "The generated response violates the content policy."})
+
+        else:
+            app.logger.warning(f"Moderation is only supported for OpenAI models. But the api_provider is set to '{api_provider}'.")
 
     # Add assistant reply to the chat history
     chat_history.append({"role": "assistant", "content": assistant_reply})
