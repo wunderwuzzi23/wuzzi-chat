@@ -1,13 +1,51 @@
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify, send_file, Response
+import json
 from ai_model import GroqModel, OpenAIModel, OllamaModel
 import dotenv
 import os
+from flasgger import Swagger
 
 app = Flask(__name__)
+
+# Initialize Swagger so we can provide API documentation
+app.config['SWAGGER'] = {
+    'title': 'A swagger API',
+    'uiversion': 2,
+    'host': 'localhost:5000',
+    'basePath': '/',
+    'schemes': ['http']
+}
+swagger = Swagger(app)
 
 # Set moderation settings (these only apply to the OpenAI models)
 MODERATION_BEFORE = True
 MODERATION_AFTER = True
+
+
+@app.route('/download/swagger.json', methods=['GET'])
+def download_swagger():
+    """
+    Download Swagger JSON.
+    ---
+    summary: Retrieve the swagger.json file as an attachment.
+    tags:
+      - Download
+    produces:
+      - application/json
+    responses:
+      200:
+        description: A downloadable swagger.json file.
+        headers:
+          Content-Disposition:
+            type: string
+            description: 'Indicates an attachment with filename swagger.json.'
+        schema:
+          type: object
+    """
+    spec = swagger.get_apispecs()  # Retrieve the specification from Flasgger.
+    response = Response(json.dumps(spec, indent=2), mimetype='application/json')
+    response.headers['Content-Disposition'] = 'attachment; filename=swagger.json'
+    return response
 
 
 def get_ai_model(api_provider):
@@ -53,7 +91,86 @@ def settings():
 
 @app.route("/chat", methods=["POST"])
 def chat():
-
+    """
+        Chat API Endpoint.
+        ---
+        tags:
+          - Chat
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            default: 'Bearer <CHATUI_API_KEY>'
+            description: Bearer token for API key (prefixed with 'Bearer ').
+          - name: Content-Type
+            in: header
+            type: string
+            required: true
+            default: "application/json; charset=utf-8"
+            description: Must be set to 'application/json; charset=utf-8'.
+          - in: header
+            name: Accept
+            type: string
+            required: true
+            default: 'application/json'
+            description: Must be set to 'application/json'.
+          - in: body
+            name: payload
+            required: true
+            schema:
+              type: object
+              properties:
+                api_provider:
+                  type: string
+                  default: 'groq'
+                  description: The API provider to be employed.
+                chat_history:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      role:
+                        type: string
+                        default: 'user'
+                        description: The role of the message (e.g., 'user', 'assistant', or 'system').
+                      content:
+                        type: string
+                        default: 'Hello! This is a test message.'
+                        description: The text content of the message.
+        responses:
+          200:
+            description: A successful chat response.
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: The assistant's reply.
+                chat_history:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      role:
+                        type: string
+                      content:
+                        type: string
+          400:
+            description: Invalid request due to improper chat history.
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+          401:
+            description: Unauthorized access due to missing or invalid credentials.
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+        """
     # Check for the Authorization header
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
@@ -66,6 +183,18 @@ def chat():
     app.logger.info(f"Request Body: {request.json}")
     
     system_prompt = "This is Wuzzi Chat a friendly and helpful AI assistant."
+    try:
+        # At this point we should check if the request body is valid
+        if "api_provider" not in request.json or "chat_history" not in request.json:
+            print(f"Invalid request body: {request.json}")
+            print("Should have been like:\n{'api_provider': 'groq', 'chat_history': [{'role': 'user', 'content': 'Hello!'}]}\n")
+
+            raise Exception("Invalid request body.")
+            # return jsonify({"error": "Invalid request body."}), 400
+    except Exception as e:
+        print(f"Exception: {e}")
+        return jsonify({"error": "Invalid request body."}), 400
+
 
     api_provider = request.json["api_provider"]
     chat_history = request.json["chat_history"]
