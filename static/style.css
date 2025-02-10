@@ -120,6 +120,20 @@ body.dark-mode #chat-form button {
     height: 24px;
 }
 
+.settings-middle-button {
+    display: inline-flex;
+    align-items: center;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: pointer;
+}
+
+.settings-middle-button span {
+    vertical-align: super;  /* This moves the emoji to superscript */
+}
+
 .dark-mode-button {
     position: fixed;
     bottom: 20px;
