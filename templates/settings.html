@@ -3,6 +3,21 @@
 <head>
    <title>Wuzzi's Chatbot - Settings</title>
    <link rel="stylesheet" href="style.css">
+        <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        if (localStorage.getItem('darkMode') === 'enabled') {
+          document.body.classList.add('dark-mode');
+        }
+      });
+      function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        if (document.body.classList.contains('dark-mode')) {
+          localStorage.setItem('darkMode', 'enabled');
+        } else {
+          localStorage.setItem('darkMode', 'disabled');
+        }
+      }
+    </script>
 </head>
 <body>
    <div class="container">
@@ -20,7 +35,9 @@
            <div id="status-label" class="status-label"></div>
        </form>
    </div>
-
+   <div class="dark-mode-button" onclick="toggleDarkMode()">Toggle Dark Mode</div>
+   <div class="settings-middle-button" onclick="window.open('apidocs', '_blank')">Swagger API Tool↗</div>
+   <div class="settings-button" onclick="location.href='download/swagger.json'">swagger.json⬇</div>
    <script defer>
         var apiKeyInput = document.getElementById("api-key");
         var apiProviderInput = document.getElementById("api-provider");
